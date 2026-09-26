@@ -9,24 +9,41 @@ const STATUS = {
   maintenance: { label: 'Bảo trì', color: '#d6ad58', soft: '#fff4ce' },
 }
 
+const tenantNames = [
+  'Nguyễn Minh Anh','Trần Quốc Huy','Lê Thảo Vy','Phạm Gia Bảo','Võ Ngọc Hà','Đặng Hoàng Nam',
+  'Bùi Khánh Linh','Nguyễn Tuấn Kiệt','Trương Mỹ Duyên','Lê Đức Anh','Huỳnh Bảo Trân','Phan Minh Khang',
+  'Đỗ Ngọc Mai','Trần Anh Khoa','Nguyễn Hà My','Võ Thành Đạt','Lương Khánh An','Phạm Quỳnh Như',
+  'Mai Nhật Minh','Đinh Thanh Trúc','Nguyễn Quốc Bảo','Lê Hoài Phương','Trần Minh Quân','Vũ Thùy Dương',
+  'Ngô Gia Hân','Phạm Đức Long','Lê Minh Châu','Nguyễn Hải Đăng','Trần Bảo Ngọc','Võ Hoàng Phúc',
+  'Đỗ Thanh Tâm','Nguyễn Khánh Vy','Lê Quốc Khánh','Trương Anh Thư','Phạm Minh Triết','Bùi Yến Nhi'
+]
+
+const roomIssues = ['Điều hòa cần kiểm tra','Rò rỉ vòi lavabo','Đèn hành lang chập chờn','Khóa cửa cần bảo dưỡng','Kiểm tra áp lực nước','Sơn tường cần xử lý']
+
 const rooms = Array.from({ length: 8 }, (_, floorIndex) =>
-  Array.from({ length: 5 }, (_, roomIndex) => {
+  Array.from({ length: 6 }, (_, roomIndex) => {
     const floor = floorIndex + 1
     const no = floor * 100 + roomIndex + 1
-    const statusPool = ['occupied','occupied','vacant','occupied','maintenance']
+    const statusPool = ['occupied','occupied','vacant','occupied','maintenance','vacant']
+    const status = statusPool[(roomIndex + floorIndex) % statusPool.length]
+    const tenantIndex = floorIndex * 4 + roomIndex
+    const tenant = status === 'occupied' ? tenantNames[tenantIndex % tenantNames.length] : null
     return {
       id: 'R' + no,
       code: String(no),
       floor,
       bodyId: 'BODY_' + String(no).padStart(4,'0'),
-      area: [28,32,36,42,48][roomIndex],
-      bedrooms: roomIndex < 2 ? 1 : 2,
-      rent: [5200000,5900000,6500000,7200000,7800000][roomIndex],
-      status: statusPool[(roomIndex + floorIndex) % statusPool.length],
-      tenant: ((roomIndex + floorIndex) % statusPool.length) === 0 ? 'Nguyễn Minh Anh' : ((roomIndex + floorIndex) % statusPool.length) === 1 ? 'Trần Quốc Huy' : null,
-      contractEnd: ((roomIndex + floorIndex) % statusPool.length) < 2 ? '30/11/2026' : null,
-      electricity: 286 + floor * 13 + roomIndex * 7,
-      water: 18 + floor + roomIndex,
+      area: [28,31,35,39,43,47][roomIndex],
+      bedrooms: roomIndex < 3 ? 1 : 2,
+      rent: [5200000,5700000,6200000,6800000,7300000,7900000][roomIndex] + floorIndex * 100000,
+      status,
+      tenant,
+      phone: tenant ? '09' + String(12000000 + tenantIndex * 731).slice(-8) : null,
+      contractCode: tenant ? 'HD-' + String(no) + '-26' : null,
+      contractEnd: tenant ? ['30/11/2026','31/12/2026','28/02/2027','31/03/2027'][tenantIndex % 4] : null,
+      electricity: 218 + floor * 17 + roomIndex * 11,
+      water: 14 + floor + roomIndex * 2,
+      issue: status === 'maintenance' ? roomIssues[(floorIndex + roomIndex) % roomIssues.length] : null,
     }
   })
 ).flat()
@@ -99,38 +116,94 @@ function Building3D({ activeFloor, statusFilter, selectedRoom, onSelectRoom }) {
     scene.add(grid)
 
     roomMeshesRef.current.clear()
+
+    const floorH = 1.38
+    const roomW = 2.45
+    const roomD = 2.55
+    const roomH = 1.02
+    const roomPositions = [
+      [-2.65,-1.65],[0,-1.65],[2.65,-1.65],
+      [-2.65, 1.65],[0, 1.65],[2.65, 1.65],
+    ]
+
+    for(let f=1; f<=8; f++){
+      const slab = new THREE.Mesh(
+        new THREE.BoxGeometry(8.65,.10,6.65),
+        new THREE.MeshStandardMaterial({color:'#ecece8',roughness:.92,metalness:0})
+      )
+      slab.position.set(0,(f-1)*floorH,.0)
+      slab.receiveShadow=true
+      scene.add(slab)
+
+      const corridor = new THREE.Mesh(
+        new THREE.BoxGeometry(8.15,.035,.72),
+        new THREE.MeshStandardMaterial({color:'#dfe1dc',roughness:.9})
+      )
+      corridor.position.set(0,(f-1)*floorH+.08,0)
+      corridor.receiveShadow=true
+      scene.add(corridor)
+    }
+
     rooms.forEach((room) => {
-      const col = (Number(room.code) % 100) - 1
-      const xPositions = [-4.4,-2.2,0,2.2,4.4]
-      const shape = new THREE.BoxGeometry(1.92,.94,5.2)
+      const idx = (Number(room.code) % 100) - 1
+      const [x,z] = roomPositions[idx]
+      const shape = new THREE.BoxGeometry(roomW,roomH,roomD)
       const mat = new THREE.MeshStandardMaterial({
         color: STATUS[room.status].color,
-        roughness:.72,
-        metalness:.02,
+        roughness:.62,
+        metalness:.015,
         transparent:true,
-        opacity:.93,
+        opacity:.90,
       })
       const mesh = new THREE.Mesh(shape,mat)
-      mesh.position.set(xPositions[col], (room.floor-1)*1.24 + .52, 0)
-      mesh.castShadow = true; mesh.receiveShadow = true
-      mesh.userData.roomId = room.id
+      mesh.position.set(x,(room.floor-1)*floorH+.60,z)
+      mesh.castShadow=true; mesh.receiveShadow=true
+      mesh.userData.roomId=room.id
       scene.add(mesh)
       roomMeshesRef.current.set(room.id,mesh)
 
       const edge = new THREE.LineSegments(
         new THREE.EdgesGeometry(shape),
-        new THREE.LineBasicMaterial({color:'#ffffff',transparent:true,opacity:.65})
+        new THREE.LineBasicMaterial({color:'#ffffff',transparent:true,opacity:.72})
       )
       edge.position.copy(mesh.position)
       scene.add(edge)
-      mesh.userData.edge = edge
+      mesh.userData.edge=edge
+
+      const balcony = new THREE.Mesh(
+        new THREE.BoxGeometry(roomW*.78,.045,.42),
+        new THREE.MeshStandardMaterial({color:'#d9dbd6',roughness:.88})
+      )
+      balcony.position.set(x,(room.floor-1)*floorH+.20,z + (z<0?-1:1)*1.49)
+      balcony.castShadow=true
+      scene.add(balcony)
     })
 
     const core = new THREE.Mesh(
-      new THREE.BoxGeometry(1.4,10.1,1.6),
-      new THREE.MeshStandardMaterial({color:'#d6d8d2',roughness:.9})
+      new THREE.BoxGeometry(1.45,11.15,1.28),
+      new THREE.MeshStandardMaterial({color:'#cfd2cc',roughness:.82})
     )
-    core.position.set(0,4.9,-3.35); core.castShadow=true; scene.add(core)
+    core.position.set(0,5.25,0)
+    core.castShadow=true
+    scene.add(core)
+
+    ;[[-4.05,-2.95],[4.05,-2.95],[-4.05,2.95],[4.05,2.95]].forEach(([x,z])=>{
+      const column=new THREE.Mesh(
+        new THREE.BoxGeometry(.18,11.2,.18),
+        new THREE.MeshStandardMaterial({color:'#bfc3bd',roughness:.8})
+      )
+      column.position.set(x,5.25,z)
+      column.castShadow=true
+      scene.add(column)
+    })
+
+    const roof = new THREE.Mesh(
+      new THREE.BoxGeometry(8.8,.14,6.8),
+      new THREE.MeshStandardMaterial({color:'#e4e5e1',roughness:.9})
+    )
+    roof.position.set(0,8*floorH-.03,0)
+    roof.castShadow=true
+    scene.add(roof)
 
     const raycaster = new THREE.Raycaster()
     const pointer = new THREE.Vector2()
@@ -197,18 +270,38 @@ function Sidebar({page,setPage}) {
       </button>)}
     </nav>
     <div className="sidebar-spacer"/>
-    <div className="building-mini"><span className="eyebrow">TÒA NHÀ</span><strong>Mini Apartment 01</strong><span>8 tầng · 40 căn hộ</span></div>
+    <div className="building-mini"><span className="eyebrow">TÒA NHÀ</span><strong>Mini Apartment 01</strong><span>8 tầng · 48 căn hộ</span></div>
     <button className="profile profile-text"><span><strong>Ban quản lý</strong><small>Mini Apartment 01</small></span><span>•••</span></button>
   </aside>
 }
 
-function Topbar({page}) {
+function Topbar({page,setPage}) {
   const title = navItems.find(x=>x[0]===page)?.[1] || 'WebGIS 3D'
+  const navigate = useNavigate()
+  const [query,setQuery] = useState('')
+  const [noticeOpen,setNoticeOpen] = useState(false)
+
+  const submitSearch = (e) => {
+    e.preventDefault()
+    const q=query.trim()
+    navigate(q ? '/apartments?q='+encodeURIComponent(q) : '/apartments')
+  }
+
   return <header className="topbar">
     <div><span className="crumb">Mini Apartment 01</span><h1>{title}</h1></div>
     <div className="top-actions">
-      <label className="search"><span>⌕</span><input placeholder="Tìm phòng, cư dân..." /></label>
-      <button className="icon-btn">?</button><button className="icon-btn">◌</button>
+      <form className="search" onSubmit={submitSearch}><span>⌕</span><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Tìm phòng / cư dân" /></form>
+      <button className="top-text-btn" onClick={()=>setPage('about')}>Q&A đề tài</button>
+      <div className="notice-wrap">
+        <button className={'top-text-btn '+(noticeOpen?'active':'')} onClick={()=>setNoticeOpen(v=>!v)}>Thông báo <span className="notice-count">3</span></button>
+        {noticeOpen&&<div className="notice-popover">
+          <span className="eyebrow">THÔNG BÁO GẦN ĐÂY</span>
+          <strong>Vận hành tòa nhà</strong>
+          <div><b>P.305</b><span>Yêu cầu bảo trì mới</span></div>
+          <div><b>P.701</b><span>Hợp đồng sắp đến kỳ rà soát</span></div>
+          <div><b>P.402</b><span>Đã cập nhật điện nước tháng này</span></div>
+        </div>}
+      </div>
     </div>
   </header>
 }
@@ -221,7 +314,7 @@ function Overview({setPage}) {
   const occupied=rooms.filter(r=>r.status==='occupied').length
   const vacant=rooms.filter(r=>r.status==='vacant').length
   const maintenance=rooms.filter(r=>r.status==='maintenance').length
-  const occupancy=Math.round(occupied/40*100)
+  const occupancy=Math.round(occupied/rooms.length*100)
 
   return <div className="page-scroll overview-premium">
     <section className="overview-hero">
@@ -234,8 +327,8 @@ function Overview({setPage}) {
     </section>
 
     <section className="metric-row">
-      <div className="metric-card metric-main"><span className="eyebrow">TỶ LỆ LẤP ĐẦY</span><strong>{occupancy}%</strong><p>{occupied} trên 40 căn hộ đang có người thuê.</p></div>
-      <div className="metric-card"><span className="metric-kicker">40</span><strong>Tổng căn hộ</strong><p>8 tầng · 5 căn/tầng trong dữ liệu prototype.</p></div>
+      <div className="metric-card metric-main"><span className="eyebrow">TỶ LỆ LẤP ĐẦY</span><strong>{occupancy}%</strong><p>{occupied} trên 48 căn hộ đang có người thuê.</p></div>
+      <div className="metric-card"><span className="metric-kicker">{rooms.length}</span><strong>Tổng căn hộ</strong><p>8 tầng · 6 căn/tầng, vẫn nằm trong phạm vi 4–6 căn/tầng của đồ án.</p></div>
       <div className="metric-card"><span className="metric-kicker">{vacant}</span><strong>Phòng trống</strong><p>Sẵn sàng cho nhu cầu tìm thuê.</p></div>
       <div className="metric-card"><span className="metric-kicker">{maintenance}</span><strong>Đang bảo trì</strong><p>Cần theo dõi trong vận hành.</p></div>
     </section>
@@ -252,7 +345,7 @@ function Overview({setPage}) {
       <div className="panel activity premium-overview-panel">
         <div className="panel-head premium-panel-head">
           <div><span className="eyebrow">RECENT ACTIVITY</span><h3>Những gì vừa thay đổi</h3></div>
-          <button className="ghost-btn">Xem tất cả</button>
+          <button className="ghost-btn" onClick={()=>setPage('reports')}>Xem báo cáo</button>
         </div>
         {[['P.701','Gia hạn hợp đồng','12 phút trước'],['P.402','Nhập chỉ số điện nước','36 phút trước'],['P.305','Tạo yêu cầu bảo trì','1 giờ trước'],['P.103','Cập nhật trạng thái phòng','2 giờ trước']].map(x=><div className="activity-row premium-activity" key={x[0]}><span className="room-chip">{x[0]}</span><div><strong>{x[1]}</strong><small>{x[2]}</small></div><span>›</span></div>)}
       </div>
@@ -260,7 +353,7 @@ function Overview({setPage}) {
   </div>
 }
 
-function Inspector({room,onClose}) {
+function Inspector({room,onClose,onUpdate,onDetail}) {
   if(!room) return <aside className="inspector empty-inspector"><div className="empty-icon">◇</div><h3>Chọn một căn hộ</h3><p>Nhấp trực tiếp vào khối phòng trên sa bàn để xem dữ liệu nghiệp vụ.</p><div className="hint"><kbd>Drag</kbd> xoay · <kbd>Scroll</kbd> zoom</div></aside>
   const st=STATUS[room.status]
   return <aside className="inspector">
@@ -271,7 +364,7 @@ function Inspector({room,onClose}) {
     <section className="ins-section"><span className="eyebrow">THÔNG TIN KHÔNG GIAN</span><div className="info-row"><span>Tầng</span><b>{room.floor}</b></div><div className="info-row"><span>Room ID</span><code>{room.id}</code></div><div className="info-row"><span>Body ID</span><code>{room.bodyId}</code></div></section>
     {room.tenant && <section className="ins-section"><span className="eyebrow">HỢP ĐỒNG HIỆN TẠI</span><div className="tenant-card"><span className="avatar small">N</span><div><strong>{room.tenant}</strong><small>Đến {room.contractEnd}</small></div><span>›</span></div></section>}
     <section className="ins-section"><span className="eyebrow">CHỈ SỐ GẦN NHẤT</span><div className="meter-grid"><div><span>Điện</span><strong>{room.electricity}</strong><small>kWh</small></div><div><span>Nước</span><strong>{room.water}</strong><small>m³</small></div></div></section>
-    <div className="inspector-actions"><button className="secondary-btn">Cập nhật</button><button className="primary-btn">Xem chi tiết</button></div>
+    <div className="inspector-actions"><button className="secondary-btn" onClick={()=>onUpdate?.(room)}>Cập nhật</button><button className="primary-btn" onClick={()=>onDetail?.(room)}>Xem chi tiết</button></div>
   </aside>
 }
 
@@ -279,6 +372,8 @@ function MapPage() {
   const [floor,setFloor]=useState(0)
   const [status,setStatus]=useState('all')
   const [selected,setSelected]=useState(null)
+  const [actionRoom,setActionRoom]=useState(null)
+  const [actionMode,setActionMode]=useState(null)
   const selectRoom = useMemo(()=>room=>setSelected(room),[])
   const statusLabel = status==='all' ? 'Tất cả trạng thái' : STATUS[status].label
 
@@ -300,7 +395,12 @@ function MapPage() {
       <div className="legend premium-legend">{Object.entries(STATUS).map(([k,v])=><button key={k} className={status===k?'active':''} onClick={()=>setStatus(status===k?'all':k)}><i style={{background:v.color}}/>{v.label}</button>)}</div>
       <div className="view-help"><span>Kéo để xoay</span><span>Cuộn để zoom</span></div>
     </main>
-    <Inspector room={selected} onClose={()=>setSelected(null)}/>
+    <Inspector room={selected} onClose={()=>setSelected(null)} onUpdate={room=>{setActionRoom(room);setActionMode('update')}} onDetail={room=>{setActionRoom(room);setActionMode('detail')}}/>
+    {actionRoom&&<div className="modal-backdrop" onClick={()=>setActionRoom(null)}><div className="action-modal" onClick={e=>e.stopPropagation()}>
+      <div className="modal-head"><div><span className="eyebrow">{actionMode==='update'?'CẬP NHẬT CĂN HỘ':'CHI TIẾT CĂN HỘ'}</span><h3>P.{actionRoom.code}</h3></div><button className="icon-btn" onClick={()=>setActionRoom(null)}>×</button></div>
+      <div className="modal-grid"><div><span>Trạng thái</span><strong>{STATUS[actionRoom.status].label}</strong></div><div><span>Người thuê</span><strong>{actionRoom.tenant||'Chưa có'}</strong></div><div><span>Giá thuê</span><strong>{formatMoney(actionRoom.rent)}</strong></div><div><span>BODY ID</span><code>{actionRoom.bodyId}</code></div></div>
+      {actionMode==='update'?<><label className="field-label">Trạng thái prototype<select defaultValue={actionRoom.status}><option value="vacant">Phòng trống</option><option value="occupied">Đang thuê</option><option value="maintenance">Bảo trì</option></select></label><button className="primary-btn modal-primary" onClick={()=>setActionRoom(null)}>Lưu bản demo</button></>:<button className="primary-btn modal-primary" onClick={()=>setActionRoom(null)}>Đóng chi tiết</button>}
+    </div></div>}
   </div>
 }
 
@@ -408,21 +508,64 @@ function AboutPage() {
 }
 
 function DataPage({type}) {
+  const location=useLocation()
+  const params=new URLSearchParams(location.search)
+  const initial=params.get('q')||''
+  const [query,setQuery]=useState(initial)
+  const [onlyOccupied,setOnlyOccupied]=useState(false)
+  const [modal,setModal]=useState(null)
+
+  useEffect(()=>setQuery(initial),[initial])
+
   const configs={
-    rooms:['Danh mục căn hộ','Quản lý trạng thái, diện tích và giá thuê','Thêm căn hộ'],
-    tenants:['Cư dân','Hồ sơ khách thuê đang lưu trú','Thêm cư dân'],
-    contracts:['Hợp đồng','Theo dõi hợp đồng và thời hạn thuê','Tạo hợp đồng'],
-    utilities:['Điện & Nước','Ghi nhận chỉ số tiêu thụ hàng tháng','Nhập chỉ số'],
-    maintenance:['Bảo trì','Tiếp nhận và theo dõi yêu cầu sửa chữa','Tạo yêu cầu'],
-    reports:['Báo cáo','Thống kê doanh thu và tỷ lệ lấp đầy','Xuất báo cáo'],
+    rooms:['Danh mục căn hộ','Trạng thái, diện tích, giá thuê và cư dân hiện tại','Thêm căn hộ'],
+    tenants:['Cư dân','Danh sách cư dân đang thuê trong dữ liệu prototype','Thêm cư dân'],
+    contracts:['Hợp đồng','Theo dõi hợp đồng gắn trực tiếp với từng căn hộ','Tạo hợp đồng'],
+    utilities:['Điện & Nước','Chỉ số tiêu thụ gần nhất của từng phòng','Nhập chỉ số'],
+    maintenance:['Bảo trì','Các căn hộ đang có yêu cầu kỹ thuật','Tạo yêu cầu'],
+    reports:['Báo cáo','Tổng hợp trạng thái và mức độ lấp đầy','Xuất báo cáo'],
   }
   const [title,desc,action]=configs[type] || configs.rooms
-  const sample=rooms.slice(0,9)
-  return <div className="page-scroll"><div className="section-head"><div><span className="eyebrow">QUẢN LÝ</span><h2>{title}</h2><p>{desc}</p></div><button className="primary-btn">＋ {action}</button></div>
-    <section className="panel table-panel"><div className="table-tools"><label className="search wide"><span>⌕</span><input placeholder="Tìm kiếm..." /></label><button className="secondary-btn">Bộ lọc</button></div>
-    <div className="data-table"><div className="tr th"><span>Phòng</span><span>Tầng</span><span>Diện tích</span><span>Giá thuê</span><span>Trạng thái</span><span/></div>
-    {sample.map(r=><div className="tr" key={r.id}><strong>P.{r.code}</strong><span>Tầng {r.floor}</span><span>{r.area} m²</span><span>{formatMoney(r.rent)}</span><span><i className="mini-dot" style={{background:STATUS[r.status].color}}/>{STATUS[r.status].label}</span><button className="table-more">•••</button></div>)}</div></section>
+  const q=query.trim().toLowerCase()
+  const filtered=rooms.filter(r=>{
+    const matches=!q||r.code.toLowerCase().includes(q)||(r.tenant||'').toLowerCase().includes(q)||(r.bodyId||'').toLowerCase().includes(q)
+    return matches && (!onlyOccupied||r.status==='occupied')
+  })
+
+  if(type==='reports'){
+    const occupied=rooms.filter(r=>r.status==='occupied').length
+    const vacant=rooms.filter(r=>r.status==='vacant').length
+    const maintenance=rooms.filter(r=>r.status==='maintenance').length
+    return <div className="page-scroll"><div className="section-head"><div><span className="eyebrow">BÁO CÁO PROTOTYPE</span><h2>{title}</h2><p>{desc}</p></div><button className="primary-btn" onClick={()=>setModal({title:'Xuất báo cáo',text:'Bản prototype đã ghi nhận yêu cầu xuất báo cáo.'})}>Xuất báo cáo</button></div>
+      <div className="report-grid"><div><span>Tổng căn</span><strong>{rooms.length}</strong></div><div><span>Đang thuê</span><strong>{occupied}</strong></div><div><span>Phòng trống</span><strong>{vacant}</strong></div><div><span>Bảo trì</span><strong>{maintenance}</strong></div></div>
+      <section className="panel report-note"><span className="eyebrow">GHI CHÚ</span><h3>Dữ liệu hiện tại là dữ liệu prototype phục vụ trình diễn giao diện và tương tác.</h3></section>
+      {modal&&<SimpleModal modal={modal} onClose={()=>setModal(null)}/>}
+    </div>
+  }
+
+  const rows = type==='maintenance' ? filtered.filter(r=>r.status==='maintenance') : type==='tenants'||type==='contracts' ? filtered.filter(r=>r.tenant) : filtered
+
+  return <div className="page-scroll">
+    <div className="section-head"><div><span className="eyebrow">QUẢN LÝ</span><h2>{title}</h2><p>{desc}</p></div><button className="primary-btn" onClick={()=>setModal({title:action,text:'Đã mở thao tác '+action.toLowerCase()+' trong prototype.'})}>＋ {action}</button></div>
+    <section className="panel table-panel">
+      <div className="table-tools">
+        <label className="search wide"><span>⌕</span><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Tìm phòng, tên cư dân, BODY ID..." /></label>
+        <button className={'secondary-btn '+(onlyOccupied?'filter-active':'')} onClick={()=>setOnlyOccupied(v=>!v)}>{onlyOccupied?'Đang lọc: có người thuê':'Lọc phòng đang thuê'}</button>
+      </div>
+      <div className="data-table">
+        {type==='rooms'&&<><div className="tr th rooms-tr"><span>Phòng</span><span>Tầng</span><span>Diện tích</span><span>Người thuê</span><span>Trạng thái</span><span/></div>{rows.map(r=><div className="tr rooms-tr" key={r.id}><strong>P.{r.code}</strong><span>Tầng {r.floor}</span><span>{r.area} m²</span><span>{r.tenant||'—'}</span><span><i className="mini-dot" style={{background:STATUS[r.status].color}}/>{STATUS[r.status].label}</span><button className="row-action" onClick={()=>setModal({title:'Căn hộ P.'+r.code,text:(r.tenant?'Người thuê: '+r.tenant+'. ':'Phòng hiện chưa có người thuê. ')+'Giá thuê '+formatMoney(r.rent)+'. BODY ID '+r.bodyId})}>Xem</button></div>)}</>}
+        {type==='tenants'&&<><div className="tr th tenant-tr"><span>Cư dân</span><span>Phòng</span><span>Điện thoại</span><span>Hết hạn HĐ</span><span>Giá thuê</span><span/></div>{rows.map(r=><div className="tr tenant-tr" key={r.id}><strong>{r.tenant}</strong><span>P.{r.code}</span><span>{r.phone}</span><span>{r.contractEnd}</span><span>{formatMoney(r.rent)}</span><button className="row-action" onClick={()=>setModal({title:r.tenant,text:'Đang thuê căn P.'+r.code+', hợp đồng '+r.contractCode+' đến '+r.contractEnd+'.'})}>Xem</button></div>)}</>}
+        {type==='contracts'&&<><div className="tr th contract-tr"><span>Hợp đồng</span><span>Cư dân</span><span>Phòng</span><span>Giá thuê</span><span>Hết hạn</span><span/></div>{rows.map(r=><div className="tr contract-tr" key={r.id}><strong>{r.contractCode}</strong><span>{r.tenant}</span><span>P.{r.code}</span><span>{formatMoney(r.rent)}</span><span>{r.contractEnd}</span><button className="row-action" onClick={()=>setModal({title:r.contractCode,text:r.tenant+' · P.'+r.code+' · '+formatMoney(r.rent)+'/tháng.'})}>Xem</button></div>)}</>}
+        {type==='utilities'&&<><div className="tr th utility-tr"><span>Phòng</span><span>Cư dân</span><span>Điện</span><span>Nước</span><span>Kỳ ghi</span><span/></div>{rows.map(r=><div className="tr utility-tr" key={r.id}><strong>P.{r.code}</strong><span>{r.tenant||'—'}</span><span>{r.electricity} kWh</span><span>{r.water} m³</span><span>09/2026</span><button className="row-action" onClick={()=>setModal({title:'Điện & Nước P.'+r.code,text:'Chỉ số gần nhất: '+r.electricity+' kWh điện và '+r.water+' m³ nước.'})}>Xem</button></div>)}</>}
+        {type==='maintenance'&&<><div className="tr th maintenance-tr"><span>Mã</span><span>Phòng</span><span>Sự cố</span><span>Tầng</span><span>Trạng thái</span><span/></div>{rows.map((r,i)=><div className="tr maintenance-tr" key={r.id}><strong>BT-{String(i+1).padStart(3,'0')}</strong><span>P.{r.code}</span><span>{r.issue}</span><span>Tầng {r.floor}</span><span><i className="mini-dot" style={{background:STATUS.maintenance.color}}/>Đang xử lý</span><button className="row-action" onClick={()=>setModal({title:'Bảo trì P.'+r.code,text:r.issue+'. Yêu cầu đang ở trạng thái xử lý trong dữ liệu prototype.'})}>Xem</button></div>)}</>}
+      </div>
+    </section>
+    {modal&&<SimpleModal modal={modal} onClose={()=>setModal(null)}/>}
   </div>
+}
+
+function SimpleModal({modal,onClose}){
+  return <div className="modal-backdrop" onClick={onClose}><div className="simple-modal" onClick={e=>e.stopPropagation()}><div className="modal-head"><div><span className="eyebrow">PROTOTYPE ACTION</span><h3>{modal.title}</h3></div><button className="icon-btn" onClick={onClose}>×</button></div><p>{modal.text}</p><button className="primary-btn modal-primary" onClick={onClose}>Xong</button></div></div>
 }
 
 export default function App(){
@@ -441,7 +584,7 @@ export default function App(){
   return <div className="app-shell">
     <Sidebar page={page} setPage={setPage}/>
     <div className="workspace">
-      <Topbar page={page}/>
+      <Topbar page={page} setPage={setPage}/>
       <div className="content">
         <div className="route-frame" key={location.pathname}>
           {page==='about'?<AboutPage/>:page==='overview'?<Overview setPage={setPage}/>:page==='map'?<MapPage/>:<DataPage type={page}/>}
