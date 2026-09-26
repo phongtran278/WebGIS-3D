@@ -218,7 +218,7 @@ function Overview({setPage}) {
     <section className="overview-hero">
       <div>
         <span className="eyebrow">TỔNG QUAN VẬN HÀNH · MINI APARTMENT 01</span>
-        <h2>Một tòa nhà.<br/>Một góc nhìn vận hành.</h2>
+        <h2>Một tòa nhà.<br/><em className="editorial-serif">Một góc nhìn vận hành.</em></h2>
         <p>Trạng thái căn hộ, tỷ lệ lấp đầy và các hoạt động gần đây được gom vào một bức tranh duy nhất — trước khi đi sâu vào từng phòng trên sa bàn 3D.</p>
       </div>
       <button className="primary-btn hero-cta" onClick={()=>setPage('map')}>Mở WebGIS 3D →</button>
@@ -363,9 +363,9 @@ function AboutPage() {
     </section>
 
     <section className="story-grid">
-      <article className="story-card"><span className="story-index">WHY</span><h3>Vì sao cần đề tài này?</h3><p>Quản lý bằng bảng dữ liệu khiến ban quản lý khó nhìn nhanh bức tranh tổng thể của công trình, khó theo dõi trạng thái từng phòng và thiếu công cụ trực quan khi làm việc với khách thuê tiềm năng.</p></article>
-      <article className="story-card"><span className="story-index">WHAT</span><h3>Đề tài giải quyết điều gì?</h3><p>Xây dựng một ứng dụng WebGIS 3D cho phép quản lý căn hộ, khách thuê, hợp đồng, điện nước và bảo trì, đồng thời gắn các thông tin đó vào mô hình không gian 3D của một tòa nhà 8 tầng.</p></article>
-      <article className="story-card"><span className="story-index">HOW</span><h3>Đề tài vận hành như thế nào?</h3><p>Mô hình 3D và dữ liệu nghiệp vụ được liên kết thông qua ID căn hộ/BODY. Người dùng có thể floor slicing, thematic mapping, click-to-action và xem dữ liệu chi tiết ngay trên các đối tượng 3D.</p></article>
+      <article className="story-card"><span className="story-index editorial-serif">WHY</span><h3>Vì sao cần đề tài này?</h3><p>Quản lý bằng bảng dữ liệu khiến ban quản lý khó nhìn nhanh bức tranh tổng thể của công trình, khó theo dõi trạng thái từng phòng và thiếu công cụ trực quan khi làm việc với khách thuê tiềm năng.</p></article>
+      <article className="story-card"><span className="story-index editorial-serif">WHAT</span><h3>Đề tài giải quyết điều gì?</h3><p>Xây dựng một ứng dụng WebGIS 3D cho phép quản lý căn hộ, khách thuê, hợp đồng, điện nước và bảo trì, đồng thời gắn các thông tin đó vào mô hình không gian 3D của một tòa nhà 8 tầng.</p></article>
+      <article className="story-card"><span className="story-index editorial-serif">HOW</span><h3>Đề tài vận hành như thế nào?</h3><p>Mô hình 3D và dữ liệu nghiệp vụ được liên kết thông qua ID căn hộ/BODY. Người dùng có thể floor slicing, thematic mapping, click-to-action và xem dữ liệu chi tiết ngay trên các đối tượng 3D.</p></article>
     </section>
 
     <section className="logic-strip">
@@ -379,14 +379,14 @@ function AboutPage() {
     <section className="split-panels">
       <div className="panel premium-panel">
         <span className="eyebrow">PHẠM VI THỬ NGHIỆM</span>
-        <h3>Một prototype đủ rõ để chứng minh giá trị của GIS 3D.</h3>
+        <h3>Một prototype đủ rõ để <em className="editorial-serif">chứng minh giá trị.</em></h3>
         <p>Hệ thống được triển khai thử nghiệm trên một chung cư mini 8 tầng, mỗi tầng khoảng 4–6 căn hộ. Mô hình tập trung vào cấu trúc cần thiết để biểu diễn, tương tác và liên kết dữ liệu, không đi theo hướng BIM chi tiết.</p>
         <div className="tag-cluster"><span>3D Spatial Data</span><span>Room Status</span><span>Tenants</span><span>Contracts</span><span>Utilities</span><span>Maintenance</span></div>
       </div>
 
       <div className="panel premium-panel">
         <span className="eyebrow">CÔNG NGHỆ ĐỀ XUẤT</span>
-        <h3>Một stack gọn và rõ cho prototype WebGIS 3D.</h3>
+        <h3>Một stack gọn và rõ cho <em className="editorial-serif">WebGIS 3D.</em></h3>
         <div className="stack-list">
           <div className="stack-row"><strong>React + Three.js</strong><span>Giao diện, component và tương tác mô hình 3D</span></div>
           <div className="stack-row"><strong>REST API + JSON</strong><span>Lớp giao tiếp giữa frontend và backend</span></div>
@@ -397,7 +397,7 @@ function AboutPage() {
     </section>
 
     <section className="faq-landing">
-      <div className="faq-landing-head"><span className="eyebrow">Q&A</span><h3>Những câu hỏi giúp nhìn ra logic của đề tài.</h3><p>Phần này giải thích nhanh giá trị, cơ chế và giới hạn của hệ thống dựa trên tài liệu nhóm.</p></div>
+      <div className="faq-landing-head"><span className="eyebrow">Q&A</span><h3>Những câu hỏi giúp nhìn ra <em className="editorial-serif">logic của đề tài.</em></h3><p>Phần này giải thích nhanh giá trị, cơ chế và giới hạn của hệ thống dựa trên tài liệu nhóm.</p></div>
       <div className="faq-list large-faq">
         {faqs.map((item,index)=><details key={item.q} className="faq-item" open={index===0}><summary><span>{String(index+1).padStart(2,'0')}</span><strong>{item.q}</strong><b>＋</b></summary><p>{item.a}</p></details>)}
       </div>

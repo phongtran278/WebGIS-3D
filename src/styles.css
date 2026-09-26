@@ -149,3 +149,54 @@ body{overflow:hidden}.app-shell{height:100vh;display:grid;grid-template-columns:
   .large-faq .faq-item summary{grid-template-columns:28px 1fr 20px;padding:15px}
   .large-faq .faq-item p{padding:0 15px 16px 43px}
 }
+
+
+/* ===== Typography rule: PlotFlow editorial contrast =====
+   Sans = product, controls, data, navigation, operational labels.
+   IBM Plex Serif Italic = conceptual turn / key idea only.
+   Keep serif accents to one phrase per major section; never use it for controls,
+   tables, filters, IDs, numeric metrics or dense operational UI. */
+.editorial-serif,
+.hero-copy h2 em,
+.overview-hero h2 em,
+.premium-panel h3 em,
+.faq-landing-head h3 em{
+  font-family:var(--pf-font-serif);
+  font-style:italic;
+  font-weight:600;
+  letter-spacing:-.045em;
+}
+.overview-hero h2 em{
+  color:var(--pf-brand-accent);
+}
+.story-index.editorial-serif{
+  display:inline-block;
+  font-size:18px;
+  line-height:1;
+  letter-spacing:-.025em;
+  color:var(--pf-brand-accent);
+  text-transform:none;
+  transform:skewX(-2deg);
+}
+.premium-panel h3 em,
+.faq-landing-head h3 em{
+  color:var(--pf-brand-accent);
+}
+.hero-copy h2 em{
+  color:var(--pf-brand-accent);
+}
+.about-page .eyebrow,
+.overview-premium .eyebrow,
+.map-story .eyebrow{
+  font-family:var(--pf-font-sans);
+}
+.metric-kicker,
+.metric-main>strong,
+.panel-number,
+.inspector-head h2,
+.rent,
+.room-chip,
+code{
+  font-family:var(--pf-font-ui);
+  font-style:normal;
+}
