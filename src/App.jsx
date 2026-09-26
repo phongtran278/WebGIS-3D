@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
@@ -31,16 +32,22 @@ const rooms = Array.from({ length: 8 }, (_, floorIndex) =>
 ).flat()
 
 const navItems = [
-  ['about','Về đề tài'],
-  ['overview','Tổng quan'],
-  ['map','WebGIS 3D'],
-  ['rooms','Căn hộ'],
-  ['tenants','Cư dân'],
-  ['contracts','Hợp đồng'],
-  ['utilities','Điện & Nước'],
-  ['maintenance','Bảo trì'],
-  ['reports','Báo cáo'],
+  ['about','Về đề tài','/about'],
+  ['overview','Tổng quan','/overview'],
+  ['map','WebGIS 3D','/map'],
+  ['rooms','Căn hộ','/apartments'],
+  ['tenants','Cư dân','/tenants'],
+  ['contracts','Hợp đồng','/contracts'],
+  ['utilities','Điện & Nước','/utilities'],
+  ['maintenance','Bảo trì','/maintenance'],
+  ['reports','Báo cáo','/reports'],
 ]
+
+const pageFromPath = (pathname) => {
+  const hit = navItems.find(([, , path]) => path === pathname)
+  return hit?.[0] || 'about'
+}
+const pathFromPage = (page) => navItems.find(([id]) => id === page)?.[2] || '/about'
 
 function formatMoney(v){ return new Intl.NumberFormat('vi-VN').format(v) + ' ₫' }
 
@@ -181,9 +188,11 @@ function Building3D({ activeFloor, statusFilter, selectedRoom, onSelectRoom }) {
 
 function Sidebar({page,setPage}) {
   return <aside className="sidebar">
-    <div className="brand brand-text-only"><div><strong>WebGIS 3D</strong><span>Apartment Management</span></div></div>
-    <nav>{navItems.map(([id,label]) =>
-      <button key={id} className={'nav-item '+(page===id?'active':'')} onClick={()=>setPage(id)}>
+    <button className="brand brand-text-only brand-button" onClick={()=>setPage('about')} aria-label="Về đề tài">
+      <div><strong>WebGIS 3D</strong><span>Spatial apartment management</span></div>
+    </button>
+    <nav>{navItems.map(([id,label,path]) =>
+      <button key={id} className={'nav-item '+(page===id?'active':'')} onClick={()=>setPage(id)} aria-current={page===id?'page':undefined}>
         <span>{label}</span>{id==='map'&&<span className="live-dot"/>}
       </button>)}
     </nav>
@@ -340,51 +349,46 @@ function AboutPage() {
   ]
 
   return <div className="page-scroll about-page landing-about">
-    <section className="landing-hero">
-      <div className="hero-copy">
+    <section className="bento-hero">
+      <div className="bento-card bento-hero-main motion-rise">
         <span className="eyebrow">WEBGIS 3D · NHÓM 3 · CHUNG CƯ MINI 8 TẦNG</span>
-        <h2>Quản lý căn hộ<br/>không chỉ bằng dữ liệu,<br/><em>mà bằng chính không gian.</em></h2>
-        <p>Đề tài hướng đến việc biến mô hình 3D của tòa nhà thành một công cụ quản lý trực tiếp — nơi người dùng có thể quan sát, truy vấn và cập nhật thông tin ngay trên từng căn hộ, thay vì phải tự đối chiếu dữ liệu rời rạc trong bảng biểu.</p>
-
-        <div className="hero-meta">
-          <div><strong>8 tầng</strong><span>Một tòa chung cư mini thử nghiệm</span></div>
-          <div><strong>4–6 căn / tầng</strong><span>Đủ để thể hiện logic GIS 3D</span></div>
-          <div><strong>WebGIS</strong><span>Quản lý vận hành qua trình duyệt</span></div>
+        <div className="hero-main-copy">
+          <h2>Quản lý căn hộ<br/>không chỉ bằng dữ liệu,<br/><em className="editorial-serif">mà bằng chính không gian.</em></h2>
+          <p>Đề tài hướng đến việc biến mô hình 3D của tòa nhà thành một công cụ quản lý trực tiếp — nơi người dùng có thể quan sát, truy vấn và cập nhật thông tin ngay trên từng căn hộ, thay vì phải tự đối chiếu dữ liệu rời rạc trong bảng biểu.</p>
         </div>
+        <div className="hero-arrow-flow" aria-hidden="true"><span>→</span><span>→</span><span>→</span></div>
       </div>
 
-      <div className="hero-note">
-        <div className="hero-note-card">
-          <span className="eyebrow">CORE IDEA</span>
-          <h3>Thu hẹp khoảng cách giữa dữ liệu quản lý và cấu trúc thực tế của công trình.</h3>
-          <p>Thay vì nhìn tòa nhà như một danh sách mã phòng, hệ thống nhìn mỗi căn hộ như một thực thể không gian có vị trí, trạng thái và dữ liệu nghiệp vụ đi kèm.</p>
-        </div>
+      <div className="bento-card bento-core motion-rise delay-1">
+        <span className="eyebrow">CORE IDEA</span>
+        <h3>Thu hẹp khoảng cách giữa <em className="editorial-serif">dữ liệu quản lý</em> và cấu trúc thực tế.</h3>
+        <p>Thay vì nhìn tòa nhà như một danh sách mã phòng, hệ thống nhìn mỗi căn hộ như một thực thể không gian có vị trí, trạng thái và dữ liệu nghiệp vụ đi kèm.</p>
       </div>
+
+      <div className="bento-card bento-metric metric-one motion-rise delay-2"><strong>8 tầng</strong><span>Một mô hình thử nghiệm đủ rõ để thể hiện logic GIS 3D.</span></div>
+      <div className="bento-card bento-metric metric-two motion-rise delay-3"><strong>4–6 căn / tầng</strong><span>Quy mô phù hợp để tổ chức đối tượng theo độ cao, truy vấn và bóc tách tầng.</span></div>
     </section>
 
-    <section className="story-grid">
-      <article className="story-card"><span className="story-index editorial-serif">WHY</span><h3>Vì sao cần đề tài này?</h3><p>Quản lý bằng bảng dữ liệu khiến ban quản lý khó nhìn nhanh bức tranh tổng thể của công trình, khó theo dõi trạng thái từng phòng và thiếu công cụ trực quan khi làm việc với khách thuê tiềm năng.</p></article>
-      <article className="story-card"><span className="story-index editorial-serif">WHAT</span><h3>Đề tài giải quyết điều gì?</h3><p>Xây dựng một ứng dụng WebGIS 3D cho phép quản lý căn hộ, khách thuê, hợp đồng, điện nước và bảo trì, đồng thời gắn các thông tin đó vào mô hình không gian 3D của một tòa nhà 8 tầng.</p></article>
-      <article className="story-card"><span className="story-index editorial-serif">HOW</span><h3>Đề tài vận hành như thế nào?</h3><p>Mô hình 3D và dữ liệu nghiệp vụ được liên kết thông qua ID căn hộ/BODY. Người dùng có thể floor slicing, thematic mapping, click-to-action và xem dữ liệu chi tiết ngay trên các đối tượng 3D.</p></article>
-    </section>
+    <section className="bento-grid">
+      <article className="bento-card bento-story motion-rise"><span className="story-index editorial-serif">WHY</span><h3>Vì sao cần đề tài này?</h3><p>Quản lý bằng bảng dữ liệu khiến ban quản lý khó nhìn nhanh bức tranh tổng thể của công trình, khó theo dõi trạng thái từng phòng và thiếu công cụ trực quan khi làm việc với khách thuê tiềm năng.</p></article>
+      <article className="bento-card bento-story motion-rise delay-1"><span className="story-index editorial-serif">WHAT</span><h3>Đề tài giải quyết điều gì?</h3><p>Xây dựng một ứng dụng WebGIS 3D cho phép quản lý căn hộ, khách thuê, hợp đồng, điện nước và bảo trì, đồng thời gắn các thông tin đó vào mô hình không gian 3D của một tòa nhà 8 tầng.</p></article>
+      <article className="bento-card bento-story motion-rise delay-2"><span className="story-index editorial-serif">HOW</span><h3>Đề tài vận hành như thế nào?</h3><p>Mô hình 3D và dữ liệu nghiệp vụ được liên kết thông qua ID căn hộ/BODY. Người dùng có thể floor slicing, thematic mapping, click-to-action và xem dữ liệu chi tiết ngay trên các đối tượng 3D.</p></article>
 
-    <section className="logic-strip">
-      <div className="logic-item"><span className="eyebrow">INPUT</span><strong>Dữ liệu không gian + dữ liệu thuộc tính</strong><p>Mô hình 3D tòa nhà, tầng, căn hộ và dữ liệu khách thuê, hợp đồng, điện nước, bảo trì.</p></div>
-      <div className="logic-arrow">→</div>
-      <div className="logic-item"><span className="eyebrow">MECHANISM</span><strong>Liên kết hình học với nghiệp vụ</strong><p>Click vào phòng để truy xuất thông tin, cập nhật trạng thái và hỗ trợ quan sát trực tiếp trên mô hình.</p></div>
-      <div className="logic-arrow">→</div>
-      <div className="logic-item"><span className="eyebrow">OUTPUT</span><strong>Quản lý trực quan và chính xác hơn</strong><p>Hỗ trợ giám sát tình trạng lấp đầy, tìm phòng trống, theo dõi bảo trì và nắm bắt vận hành nhanh hơn.</p></div>
-    </section>
+      <article className="bento-card bento-logic motion-rise">
+        <span className="eyebrow">MECHANISM</span>
+        <h3>Input → Interaction → Insight</h3>
+        <p>Dữ liệu không gian và dữ liệu thuộc tính được kết nối để tạo ra một luồng quản lý trực quan: chọn tầng, nhấp căn hộ, đọc thông tin và theo dõi vận hành.</p>
+        <div className="mini-flow"><span>Data</span><i>→</i><span>3D Model</span><i>→</i><span>Action</span></div>
+      </article>
 
-    <section className="split-panels">
-      <div className="panel premium-panel">
+      <article className="bento-card bento-scope motion-rise delay-1">
         <span className="eyebrow">PHẠM VI THỬ NGHIỆM</span>
         <h3>Một prototype đủ rõ để <em className="editorial-serif">chứng minh giá trị.</em></h3>
         <p>Hệ thống được triển khai thử nghiệm trên một chung cư mini 8 tầng, mỗi tầng khoảng 4–6 căn hộ. Mô hình tập trung vào cấu trúc cần thiết để biểu diễn, tương tác và liên kết dữ liệu, không đi theo hướng BIM chi tiết.</p>
         <div className="tag-cluster"><span>3D Spatial Data</span><span>Room Status</span><span>Tenants</span><span>Contracts</span><span>Utilities</span><span>Maintenance</span></div>
-      </div>
+      </article>
 
-      <div className="panel premium-panel">
+      <article className="bento-card bento-tech motion-rise delay-2">
         <span className="eyebrow">CÔNG NGHỆ ĐỀ XUẤT</span>
         <h3>Một stack gọn và rõ cho <em className="editorial-serif">WebGIS 3D.</em></h3>
         <div className="stack-list">
@@ -393,14 +397,12 @@ function AboutPage() {
           <div className="stack-row"><strong>Node.js + Express.js</strong><span>Xử lý nghiệp vụ và cung cấp dịch vụ dữ liệu</span></div>
           <div className="stack-row"><strong>PostgreSQL + PostGIS</strong><span>Lưu trữ dữ liệu nghiệp vụ và dữ liệu không gian</span></div>
         </div>
-      </div>
+      </article>
     </section>
 
     <section className="faq-landing">
-      <div className="faq-landing-head"><span className="eyebrow">Q&A</span><h3>Những câu hỏi giúp nhìn ra <em className="editorial-serif">logic của đề tài.</em></h3><p>Phần này giải thích nhanh giá trị, cơ chế và giới hạn của hệ thống dựa trên tài liệu nhóm.</p></div>
-      <div className="faq-list large-faq">
-        {faqs.map((item,index)=><details key={item.q} className="faq-item" open={index===0}><summary><span>{String(index+1).padStart(2,'0')}</span><strong>{item.q}</strong><b>＋</b></summary><p>{item.a}</p></details>)}
-      </div>
+      <div className="faq-landing-head motion-rise"><span className="eyebrow">Q&A</span><h3>Những câu hỏi giúp nhìn ra <em className="editorial-serif">logic của đề tài.</em></h3><p>Giải thích nhanh giá trị, cơ chế và giới hạn của hệ thống dựa trên tài liệu nhóm.</p></div>
+      <div className="faq-list large-faq">{faqs.map((item,index)=><details key={item.q} className="faq-item motion-rise" open={index===0}><summary><span>{String(index+1).padStart(2,'0')}</span><strong>{item.q}</strong><b>＋</b></summary><p>{item.a}</p></details>)}</div>
     </section>
   </div>
 }
@@ -424,6 +426,27 @@ function DataPage({type}) {
 }
 
 export default function App(){
-  const [page,setPage]=useState('map')
-  return <div className="app-shell"><Sidebar page={page} setPage={setPage}/><div className="workspace"><Topbar page={page}/><div className="content">{page==='about'?<AboutPage/>:page==='overview'?<Overview setPage={setPage}/>:page==='map'?<MapPage/>:<DataPage type={page}/>}</div></div></div>
+  const location = useLocation()
+  const navigate = useNavigate()
+  const page = pageFromPath(location.pathname)
+
+  useEffect(() => {
+    if (location.pathname === '/' || !navItems.some(([, , path]) => path === location.pathname)) {
+      navigate('/about', { replace: true })
+    }
+  }, [location.pathname, navigate])
+
+  const setPage = (nextPage) => navigate(pathFromPage(nextPage))
+
+  return <div className="app-shell">
+    <Sidebar page={page} setPage={setPage}/>
+    <div className="workspace">
+      <Topbar page={page}/>
+      <div className="content">
+        <div className="route-frame" key={location.pathname}>
+          {page==='about'?<AboutPage/>:page==='overview'?<Overview setPage={setPage}/>:page==='map'?<MapPage/>:<DataPage type={page}/>}
+        </div>
+      </div>
+    </div>
+  </div>
 }

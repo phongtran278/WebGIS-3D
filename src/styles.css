@@ -200,3 +200,101 @@ code{
   font-family:var(--pf-font-ui);
   font-style:normal;
 }
+
+
+/* ===== Final presentation polish: rhythm, Bento, motion & routes ===== */
+:root{
+  --content-leading:1.78;
+  --headline-leading:1.015;
+  --subheadline-leading:1.18;
+}
+.brand-button{border:0;background:transparent;width:100%;text-align:left;cursor:pointer}
+.brand-button:hover strong{color:var(--pf-brand-accent)}
+
+.route-frame{height:100%;min-height:0;animation:routeEnter 360ms var(--pf-ease-standard) both}
+@keyframes routeEnter{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+
+.page-scroll p,.bento-card p,.faq-item p,.overview-hero p,.map-story p,.stack-row span{line-height:var(--content-leading)}
+.bento-card h2,.overview-hero h2{line-height:var(--headline-leading)}
+.bento-card h3,.faq-landing-head h3,.premium-panel h3{line-height:var(--subheadline-leading)}
+.bento-card h2,.bento-card h3,.overview-hero h2,.faq-landing-head h3{text-wrap:balance}
+
+.bento-hero{
+  display:grid;
+  grid-template-columns:minmax(0,1.45fr) minmax(290px,.75fr);
+  grid-template-areas:"hero core" "hero metric1" "hero metric2";
+  gap:12px;
+  margin-bottom:12px
+}
+.bento-card{
+  position:relative;overflow:hidden;
+  background:rgba(255,255,255,.72);
+  border:1px solid var(--pf-line);
+  border-radius:26px;
+  box-shadow:var(--pf-shadow-card);
+  padding:24px;
+  transition:transform 280ms var(--pf-ease-standard),box-shadow 280ms ease,border-color 280ms ease
+}
+.bento-card:hover{transform:translateY(-2px);box-shadow:0 20px 48px rgba(25,31,38,.08);border-color:rgba(19,22,26,.12)}
+.bento-card:after{content:"";position:absolute;width:200px;height:200px;right:-70px;bottom:-90px;background:radial-gradient(circle,rgba(15,122,100,.075),transparent 70%);opacity:0;transition:opacity 280ms ease;pointer-events:none}
+.bento-card:hover:after{opacity:1}
+.bento-hero-main{grid-area:hero;min-height:438px;display:flex;flex-direction:column;justify-content:space-between}
+.hero-main-copy{margin-top:auto;margin-bottom:auto}
+.bento-hero-main h2{font-size:60px;letter-spacing:-.07em;margin:12px 0 20px;font-weight:650}
+.bento-hero-main p{font-size:13px;color:var(--pf-muted);margin:0;max-width:66ch}
+.bento-core{grid-area:core;min-height:200px;display:flex;flex-direction:column;justify-content:flex-end}
+.bento-core h3{font-size:28px;letter-spacing:-.045em;margin:10px 0 13px}
+.bento-core p{font-size:11px;color:var(--pf-muted);margin:0}
+.bento-metric{min-height:104px;display:flex;flex-direction:column;justify-content:flex-end}
+.bento-metric.metric-one{grid-area:metric1}.bento-metric.metric-two{grid-area:metric2}
+.bento-metric strong{font-size:30px;line-height:1;letter-spacing:-.055em;margin-bottom:9px}
+.bento-metric span{font-size:11px;line-height:1.62;color:var(--pf-muted)}
+
+.hero-arrow-flow{display:flex;gap:10px;align-items:center;margin-top:24px;color:var(--pf-brand-accent);opacity:.82}
+.hero-arrow-flow span{font-size:24px;display:inline-block;animation:driftArrow 2.4s ease-in-out infinite}
+.hero-arrow-flow span:nth-child(2){animation-delay:.18s}.hero-arrow-flow span:nth-child(3){animation-delay:.36s}
+@keyframes driftArrow{0%,100%{transform:translateX(0);opacity:.3}50%{transform:translateX(6px);opacity:1}}
+
+.bento-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;margin-bottom:38px}
+.bento-story{grid-column:span 4;min-height:250px}
+.bento-logic,.bento-scope,.bento-tech{grid-column:span 4;min-height:280px}
+.bento-story h3,.bento-logic h3,.bento-scope h3,.bento-tech h3{font-size:24px;letter-spacing:-.04em;margin:10px 0 13px}
+.bento-story p,.bento-logic p,.bento-scope p,.bento-tech p{font-size:11px;color:var(--pf-muted);margin:0}
+.story-index.editorial-serif{font-size:20px;margin-bottom:20px;display:inline-block;color:var(--pf-brand-accent)}
+.mini-flow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:20px}
+.mini-flow span{height:28px;display:inline-flex;align-items:center;padding:0 11px;border-radius:999px;background:var(--pf-surface-soft);border:1px solid var(--pf-line);font-size:9px}
+.mini-flow i{font-style:normal;color:var(--pf-muted-soft)}
+
+.faq-landing{display:grid;grid-template-columns:300px minmax(0,1fr);gap:28px;align-items:start}
+.faq-landing-head{position:sticky;top:22px}
+.faq-landing-head h3{font-size:34px;letter-spacing:-.052em;margin:10px 0 14px}
+.faq-landing-head p{font-size:11px;color:var(--pf-muted);margin:0}
+.large-faq{display:grid;gap:9px;border-top:0}
+.large-faq .faq-item{border:1px solid var(--pf-line);border-radius:18px;background:rgba(255,255,255,.72);box-shadow:var(--pf-shadow-card);overflow:hidden}
+.large-faq .faq-item summary{display:grid;grid-template-columns:38px 1fr 22px;gap:12px;align-items:start;padding:18px;min-height:unset}
+.large-faq .faq-item summary strong{font-size:15px;line-height:1.45;letter-spacing:-.025em}
+.large-faq .faq-item p{font-size:11px;padding:0 18px 18px 68px;margin:0;color:var(--pf-muted)}
+.large-faq .faq-item summary b{transition:transform 220ms ease}.large-faq .faq-item[open] summary b{transform:rotate(45deg)}
+
+.motion-rise{animation:riseIn 700ms var(--pf-ease-standard) both}.motion-rise.delay-1{animation-delay:60ms}.motion-rise.delay-2{animation-delay:120ms}.motion-rise.delay-3{animation-delay:180ms}
+@keyframes riseIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+.overview-hero h2{line-height:1.02;margin-bottom:20px}
+.overview-hero p{line-height:1.8}
+.map-story h2{line-height:1;margin-bottom:10px}.map-story p{line-height:1.65}
+
+@media(max-width:1180px){
+  .bento-hero{grid-template-columns:1fr;grid-template-areas:"hero" "core" "metric1" "metric2"}
+  .bento-grid{grid-template-columns:1fr 1fr}
+  .bento-story,.bento-logic,.bento-scope,.bento-tech{grid-column:auto}
+  .faq-landing{grid-template-columns:1fr}.faq-landing-head{position:static}
+  .bento-hero-main h2{font-size:48px}
+}
+@media(max-width:760px){
+  .bento-grid{grid-template-columns:1fr}
+  .bento-card{padding:20px;border-radius:22px}
+  .bento-hero-main{min-height:390px}.bento-hero-main h2{font-size:36px;line-height:1.04}
+  .bento-core h3,.bento-story h3,.bento-logic h3,.bento-scope h3,.bento-tech h3,.faq-landing-head h3{font-size:24px}
+  .large-faq .faq-item summary{grid-template-columns:28px 1fr 20px;padding:16px}
+  .large-faq .faq-item p{padding:0 16px 16px 44px}
+}
