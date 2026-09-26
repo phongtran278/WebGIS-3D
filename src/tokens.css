@@ -1,0 +1,34 @@
+:root {
+  --pf-brand-accent:#0f7a64;
+  --pf-brand-accent-soft:#e6f1ed;
+  --pf-bg-canvas:#f5f4f1;
+  --pf-surface:#f8f9f7;
+  --pf-surface-raised:#fff;
+  --pf-surface-soft:#eeefeb;
+  --pf-ink:#15171a;
+  --pf-ink-2:#2b3035;
+  --pf-muted:#737980;
+  --pf-muted-soft:#969ba0;
+  --pf-line:rgba(19,22,26,.085);
+  --pf-line-soft:rgba(19,22,26,.05);
+  --pf-font-ui:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --pf-space-1:4px; --pf-space-2:8px; --pf-space-3:12px; --pf-space-4:16px;
+  --pf-space-5:20px; --pf-space-6:24px; --pf-space-8:32px;
+  --pf-radius-xs:6px; --pf-radius-sm:8px; --pf-radius-control:10px;
+  --pf-radius-button:12px; --pf-radius-card:18px; --pf-radius-panel:22px;
+  --pf-radius-pill:999px;
+  --pf-control-h:32px;
+  --pf-sidebar-w:244px;
+  --pf-inspector-w:320px;
+  --pf-state-hover:rgba(19,22,26,.055);
+  --pf-state-selected:var(--pf-brand-accent-soft);
+  --pf-state-focus:rgba(15,122,100,.28);
+  --pf-danger:#b42318; --pf-danger-soft:#fce8e6;
+  --pf-warning:#9a6700; --pf-warning-soft:#fff4ce;
+  --pf-shadow-card:0 16px 42px rgba(25,31,38,.06);
+  --pf-shadow-floating:0 24px 70px rgba(20,25,30,.08);
+}
+*{box-sizing:border-box}
+html,body,#root{margin:0;min-width:320px;min-height:100%;height:100%;font-family:var(--pf-font-ui);color:var(--pf-ink);background:var(--pf-bg-canvas)}
+button,input,select{font:inherit}
+button{color:inherit}
