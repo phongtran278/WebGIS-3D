@@ -31,6 +31,7 @@ const rooms = Array.from({ length: 8 }, (_, floorIndex) =>
 ).flat()
 
 const navItems = [
+  ['about','Về đề tài','?'],
   ['overview','Tổng quan','⌂'],
   ['map','WebGIS 3D','◇'],
   ['rooms','Căn hộ','▦'],
@@ -180,7 +181,7 @@ function Building3D({ activeFloor, statusFilter, selectedRoom, onSelectRoom }) {
 
 function Sidebar({page,setPage}) {
   return <aside className="sidebar">
-    <div className="brand"><span className="brand-mark">W</span><div><strong>WebGIS</strong><span>3D Management</span></div></div>
+    <div className="brand brand-text-only"><div><strong>WebGIS 3D</strong><span>Apartment Management</span></div></div>
     <nav>{navItems.map(([id,label,icon]) =>
       <button key={id} className={'nav-item '+(page===id?'active':'')} onClick={()=>setPage(id)}>
         <span className="nav-icon">{icon}</span><span>{label}</span>{id==='map'&&<span className="live-dot"/>}
@@ -265,6 +266,110 @@ function MapPage() {
   </div>
 }
 
+
+function AboutPage() {
+  const faqs = [
+    {
+      q: 'Vì sao đề tài cần GIS 3D thay vì chỉ dùng bảng dữ liệu?',
+      a: 'Tài liệu của nhóm xác định vấn đề cốt lõi là khoảng cách giữa dữ liệu dạng số, văn bản và cấu trúc kiến trúc thực tế. Khi chỉ dùng danh sách hoặc bảng, ban quản lý phải tự đối chiếu mã phòng với vị trí thật và khó nắm nhanh trạng thái của toàn tòa nhà. Mô hình 3D được dùng như một phần trực tiếp của quá trình quản lý, không chỉ để minh họa.'
+    },
+    {
+      q: 'Đề tài đang xây dựng chính xác cái gì?',
+      a: 'Một ứng dụng WebGIS 3D quản lý cho thuê căn hộ chung cư mini 8 tầng. Mỗi căn hộ được xem như một thực thể không gian độc lập và được liên kết với dữ liệu nghiệp vụ như trạng thái phòng, khách thuê, hợp đồng, điện nước, chi phí và bảo trì.'
+    },
+    {
+      q: 'Người dùng thao tác với căn hộ trên mô hình như thế nào?',
+      a: 'Người dùng có thể xoay, thu phóng, lọc hoặc bóc tách theo tầng và nhấp trực tiếp lên căn hộ. Theo thiết kế dữ liệu của nhóm, thao tác click trên bề mặt FACE được dùng để xác định khối BODY tương ứng, sau đó truy xuất dữ liệu căn hộ bằng mã định danh liên kết.'
+    },
+    {
+      q: 'Màu sắc trên mô hình thể hiện điều gì?',
+      a: 'Mô hình dùng bản đồ chuyên đề để thể hiện trạng thái vận hành: xanh cho phòng trống, đỏ cho phòng đang thuê và vàng cho phòng đang bảo trì. Khi dữ liệu nghiệp vụ thay đổi, trạng thái hiển thị của căn hộ cũng được cập nhật tương ứng.'
+    },
+    {
+      q: 'Floor Slicing giải quyết vấn đề gì?',
+      a: 'Tài liệu nêu rằng môi trường 3D nhiều tầng có thể gây che khuất tầm nhìn. Vì vậy hệ thống cho phép ẩn hoặc làm trong suốt các tầng phía trên để quan sát rõ mặt bằng của tầng đang được chọn.'
+    },
+    {
+      q: 'Ai là người sử dụng hệ thống?',
+      a: 'Các nhóm người dùng được xác định gồm Ban Quản Lý/chủ tòa nhà, Nhân Viên vận hành, Khách Tìm Thuê và Cư Dân. Mỗi nhóm có phạm vi thao tác khác nhau, trong đó Ban Quản Lý là nhóm có quyền quản trị rộng nhất.'
+    },
+    {
+      q: 'Vì sao nhóm chọn quy mô 8 tầng, khoảng 4–6 căn mỗi tầng?',
+      a: 'Đây là dữ liệu thử nghiệm trong phạm vi đồ án, đủ để thể hiện các đặc trưng GIS 3D như tổ chức đối tượng theo độ cao, truy vấn đối tượng không gian, bóc tách tầng và liên kết dữ liệu không gian với dữ liệu thuộc tính.'
+    },
+    {
+      q: 'Đề tài có phải là mô hình BIM chi tiết không?',
+      a: 'Không. Phạm vi tài liệu nêu rõ mô hình 3D tập trung vào cấu trúc cần thiết để biểu diễn và tương tác với tầng, căn hộ; không hướng đến xây dựng mô hình BIM chi tiết.'
+    },
+    {
+      q: 'Những nội dung nào nằm ngoài phạm vi?',
+      a: 'Các nội dung chuyên sâu như quản lý thuế, kế toán doanh nghiệp, tích hợp ngân hàng, hệ thống phòng cháy chữa cháy và quản lý thiết bị kỹ thuật chi tiết được xác định là ngoài phạm vi đồ án.'
+    }
+  ]
+
+  return <div className="page-scroll about-page">
+    <section className="about-hero">
+      <span className="eyebrow">ĐỀ TÀI NHÓM 3 · WEBGIS 3D</span>
+      <h2>Từ dữ liệu rời rạc đến quản lý trực tiếp trên không gian 3D.</h2>
+      <p>Mục tiêu của đề tài là thu hẹp khoảng cách giữa thông tin quản lý và cấu trúc thực tế của tòa nhà, để người dùng có thể quan sát, truy vấn và cập nhật dữ liệu ngay trên mô hình căn hộ.</p>
+    </section>
+
+    <section className="why-what-how">
+      <article className="concept-card">
+        <span className="concept-index">01</span>
+        <span className="eyebrow">WHY · VÌ SAO</span>
+        <h3>Giảm “mù không gian” trong vận hành</h3>
+        <p>Quản lý bằng bảng biểu khiến người dùng phải tự đối chiếu mã phòng với vị trí thực tế, khó nhìn nhanh tình trạng trống, đang thuê hay bảo trì và khó mô tả không gian cho khách tìm thuê.</p>
+      </article>
+      <article className="concept-card">
+        <span className="concept-index">02</span>
+        <span className="eyebrow">WHAT · LÀ GÌ</span>
+        <h3>Một hệ thống quản lý căn hộ gắn với mô hình 3D</h3>
+        <p>Mỗi căn hộ là một thực thể không gian độc lập, được liên kết với dữ liệu khách thuê, hợp đồng, giá thuê, điện nước, chi phí và trạng thái vận hành.</p>
+      </article>
+      <article className="concept-card">
+        <span className="concept-index">03</span>
+        <span className="eyebrow">HOW · LÀM NHƯ THẾ NÀO</span>
+        <h3>Liên kết BODY–FACE–NODE với dữ liệu nghiệp vụ</h3>
+        <p>Người dùng tương tác với mô hình bằng xoay, zoom, floor slicing và click-to-action. ID phòng/BODY là cầu nối giữa hình học 3D và dữ liệu nghiệp vụ phía sau.</p>
+      </article>
+    </section>
+
+    <section className="about-split">
+      <div className="panel about-scope">
+        <span className="eyebrow">PHẠM VI THỬ NGHIỆM</span>
+        <h3>1 tòa nhà · 8 tầng · khoảng 4–6 căn/tầng</h3>
+        <p>Quy mô này được nhóm chọn để thể hiện tổ chức đối tượng theo độ cao, truy vấn không gian, bóc tách tầng và liên kết dữ liệu 3D với dữ liệu thuộc tính.</p>
+        <div className="scope-tags"><span>3D spatial data</span><span>Room status</span><span>Contracts</span><span>Utilities</span><span>Maintenance</span></div>
+      </div>
+      <div className="panel tech-flow">
+        <span className="eyebrow">KIẾN TRÚC CÔNG NGHỆ ĐỀ XUẤT</span>
+        <div className="flow-row"><strong>React + Three.js</strong><span>Frontend & 3D interaction</span></div>
+        <i>↓</i>
+        <div className="flow-row"><strong>REST API + JSON</strong><span>Giao tiếp dữ liệu</span></div>
+        <i>↓</i>
+        <div className="flow-row"><strong>Node.js + Express.js</strong><span>Backend nghiệp vụ</span></div>
+        <i>↓</i>
+        <div className="flow-row"><strong>PostgreSQL + PostGIS</strong><span>Dữ liệu nghiệp vụ & không gian</span></div>
+      </div>
+    </section>
+
+    <section className="faq-section">
+      <div className="faq-title">
+        <span className="eyebrow">Q&A · CÂU HỎI THƯỜNG GẶP</span>
+        <h3>Hiểu nhanh logic của đề tài</h3>
+        <p>Các câu trả lời dưới đây được rút trực tiếp từ phạm vi, mục tiêu, use case và lựa chọn công nghệ của nhóm.</p>
+      </div>
+      <div className="faq-list">
+        {faqs.map((item,index)=><details key={item.q} className="faq-item" open={index===0}>
+          <summary><span>{String(index+1).padStart(2,'0')}</span><strong>{item.q}</strong><b>＋</b></summary>
+          <p>{item.a}</p>
+        </details>)}
+      </div>
+    </section>
+  </div>
+}
+
 function DataPage({type}) {
   const configs={
     rooms:['Danh mục căn hộ','Quản lý trạng thái, diện tích và giá thuê','Thêm căn hộ'],
@@ -285,5 +390,5 @@ function DataPage({type}) {
 
 export default function App(){
   const [page,setPage]=useState('map')
-  return <div className="app-shell"><Sidebar page={page} setPage={setPage}/><div className="workspace"><Topbar page={page}/><div className="content">{page==='overview'?<Overview setPage={setPage}/>:page==='map'?<MapPage/>:<DataPage type={page}/>}</div></div></div>
+  return <div className="app-shell"><Sidebar page={page} setPage={setPage}/><div className="workspace"><Topbar page={page}/><div className="content">{page==='about'?<AboutPage/>:page==='overview'?<Overview setPage={setPage}/>:page==='map'?<MapPage/>:<DataPage type={page}/>}</div></div></div>
 }
