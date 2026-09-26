@@ -31,15 +31,15 @@ const rooms = Array.from({ length: 8 }, (_, floorIndex) =>
 ).flat()
 
 const navItems = [
-  ['about','Về đề tài','?'],
-  ['overview','Tổng quan','⌂'],
-  ['map','WebGIS 3D','◇'],
-  ['rooms','Căn hộ','▦'],
-  ['tenants','Cư dân','◎'],
-  ['contracts','Hợp đồng','▤'],
-  ['utilities','Điện & Nước','◫'],
-  ['maintenance','Bảo trì','△'],
-  ['reports','Báo cáo','⌁'],
+  ['about','Về đề tài'],
+  ['overview','Tổng quan'],
+  ['map','WebGIS 3D'],
+  ['rooms','Căn hộ'],
+  ['tenants','Cư dân'],
+  ['contracts','Hợp đồng'],
+  ['utilities','Điện & Nước'],
+  ['maintenance','Bảo trì'],
+  ['reports','Báo cáo'],
 ]
 
 function formatMoney(v){ return new Intl.NumberFormat('vi-VN').format(v) + ' ₫' }
@@ -182,14 +182,14 @@ function Building3D({ activeFloor, statusFilter, selectedRoom, onSelectRoom }) {
 function Sidebar({page,setPage}) {
   return <aside className="sidebar">
     <div className="brand brand-text-only"><div><strong>WebGIS 3D</strong><span>Apartment Management</span></div></div>
-    <nav>{navItems.map(([id,label,icon]) =>
+    <nav>{navItems.map(([id,label]) =>
       <button key={id} className={'nav-item '+(page===id?'active':'')} onClick={()=>setPage(id)}>
-        <span className="nav-icon">{icon}</span><span>{label}</span>{id==='map'&&<span className="live-dot"/>}
+        <span>{label}</span>{id==='map'&&<span className="live-dot"/>}
       </button>)}
     </nav>
     <div className="sidebar-spacer"/>
     <div className="building-mini"><span className="eyebrow">TÒA NHÀ</span><strong>Mini Apartment 01</strong><span>8 tầng · 40 căn hộ</span></div>
-    <button className="profile"><span className="avatar">P</span><span><strong>Phong Trần</strong><small>Ban quản lý</small></span><span>•••</span></button>
+    <button className="profile profile-text"><span><strong>Ban quản lý</strong><small>Mini Apartment 01</small></span><span>•••</span></button>
   </aside>
 }
 
@@ -212,22 +212,42 @@ function Overview({setPage}) {
   const occupied=rooms.filter(r=>r.status==='occupied').length
   const vacant=rooms.filter(r=>r.status==='vacant').length
   const maintenance=rooms.filter(r=>r.status==='maintenance').length
-  return <div className="page-scroll">
-    <div className="section-head"><div><span className="eyebrow">TỔNG QUAN VẬN HÀNH</span><h2>Chào buổi chiều, Phong.</h2><p>Tình trạng tòa nhà được cập nhật theo dữ liệu phòng hiện tại.</p></div><button className="primary-btn" onClick={()=>setPage('map')}>Mở sa bàn 3D →</button></div>
-    <div className="stats-grid">
-      <StatCard tone="green" label="Tổng căn hộ" value="40" meta="8 tầng · 5 căn/tầng"/>
-      <StatCard tone="red" label="Đang thuê" value={occupied} meta={Math.round(occupied/40*100)+'% công suất'}/>
-      <StatCard tone="teal" label="Phòng trống" value={vacant} meta="Sẵn sàng cho thuê"/>
-      <StatCard tone="yellow" label="Bảo trì" value={maintenance} meta="Cần xử lý"/>
-    </div>
-    <div className="overview-grid">
-      <section className="panel occupancy-card"><div className="panel-head"><div><span className="eyebrow">LẤP ĐẦY</span><h3>Công suất theo tầng</h3></div><strong>{Math.round(occupied/40*100)}%</strong></div>
-        <div className="bars">{[8,7,6,5,4,3,2,1].map(f=>{const rs=rooms.filter(r=>r.floor===f); const n=rs.filter(r=>r.status==='occupied').length; return <div className="bar-row" key={f}><span>T{f}</span><div><i style={{width:(n/5*100)+'%'}}/></div><b>{n}/5</b></div>})}</div>
-      </section>
-      <section className="panel activity"><div className="panel-head"><div><span className="eyebrow">GẦN ĐÂY</span><h3>Hoạt động</h3></div><button className="ghost-btn">Xem tất cả</button></div>
-        {[['P.701','Gia hạn hợp đồng','12 phút trước'],['P.402','Nhập chỉ số điện nước','36 phút trước'],['P.305','Tạo yêu cầu bảo trì','1 giờ trước'],['P.103','Cập nhật trạng thái phòng','2 giờ trước']].map(x=><div className="activity-row" key={x[0]}><span className="room-chip">{x[0]}</span><div><strong>{x[1]}</strong><small>{x[2]}</small></div><span>›</span></div>)}
-      </section>
-    </div>
+  const occupancy=Math.round(occupied/40*100)
+
+  return <div className="page-scroll overview-premium">
+    <section className="overview-hero">
+      <div>
+        <span className="eyebrow">TỔNG QUAN VẬN HÀNH · MINI APARTMENT 01</span>
+        <h2>Một tòa nhà.<br/>Một góc nhìn vận hành.</h2>
+        <p>Trạng thái căn hộ, tỷ lệ lấp đầy và các hoạt động gần đây được gom vào một bức tranh duy nhất — trước khi đi sâu vào từng phòng trên sa bàn 3D.</p>
+      </div>
+      <button className="primary-btn hero-cta" onClick={()=>setPage('map')}>Mở WebGIS 3D →</button>
+    </section>
+
+    <section className="metric-row">
+      <div className="metric-card metric-main"><span className="eyebrow">TỶ LỆ LẤP ĐẦY</span><strong>{occupancy}%</strong><p>{occupied} trên 40 căn hộ đang có người thuê.</p></div>
+      <div className="metric-card"><span className="metric-kicker">40</span><strong>Tổng căn hộ</strong><p>8 tầng · 5 căn/tầng trong dữ liệu prototype.</p></div>
+      <div className="metric-card"><span className="metric-kicker">{vacant}</span><strong>Phòng trống</strong><p>Sẵn sàng cho nhu cầu tìm thuê.</p></div>
+      <div className="metric-card"><span className="metric-kicker">{maintenance}</span><strong>Đang bảo trì</strong><p>Cần theo dõi trong vận hành.</p></div>
+    </section>
+
+    <section className="overview-editorial-grid">
+      <div className="panel occupancy-card premium-overview-panel">
+        <div className="panel-head premium-panel-head">
+          <div><span className="eyebrow">OCCUPANCY BY FLOOR</span><h3>Công suất theo từng tầng</h3></div>
+          <span className="panel-number">{occupancy}%</span>
+        </div>
+        <div className="bars premium-bars">{[8,7,6,5,4,3,2,1].map(f=>{const rs=rooms.filter(r=>r.floor===f); const n=rs.filter(r=>r.status==='occupied').length; return <div className="bar-row" key={f}><span>T{f}</span><div><i style={{width:(n/5*100)+'%'}}/></div><b>{n}/5</b></div>})}</div>
+      </div>
+
+      <div className="panel activity premium-overview-panel">
+        <div className="panel-head premium-panel-head">
+          <div><span className="eyebrow">RECENT ACTIVITY</span><h3>Những gì vừa thay đổi</h3></div>
+          <button className="ghost-btn">Xem tất cả</button>
+        </div>
+        {[['P.701','Gia hạn hợp đồng','12 phút trước'],['P.402','Nhập chỉ số điện nước','36 phút trước'],['P.305','Tạo yêu cầu bảo trì','1 giờ trước'],['P.103','Cập nhật trạng thái phòng','2 giờ trước']].map(x=><div className="activity-row premium-activity" key={x[0]}><span className="room-chip">{x[0]}</span><div><strong>{x[1]}</strong><small>{x[2]}</small></div><span>›</span></div>)}
+      </div>
+    </section>
   </div>
 }
 
@@ -251,120 +271,135 @@ function MapPage() {
   const [status,setStatus]=useState('all')
   const [selected,setSelected]=useState(null)
   const selectRoom = useMemo(()=>room=>setSelected(room),[])
-  return <div className="map-layout">
-    <main className="map-stage">
-      <div className="map-toolbar">
+  const statusLabel = status==='all' ? 'Tất cả trạng thái' : STATUS[status].label
+
+  return <div className="map-layout premium-map-layout">
+    <main className="map-stage premium-map-stage">
+      <div className="map-story">
+        <span className="eyebrow">SPATIAL OPERATIONS · LIVE PROTOTYPE</span>
+        <h2>{floor===0?'Toàn bộ tòa nhà':'Tầng '+floor}</h2>
+        <p>{statusLabel} · Click trực tiếp vào căn hộ để xem dữ liệu không gian và nghiệp vụ.</p>
+      </div>
+
+      <div className="map-toolbar premium-map-toolbar">
         <div className="segmented"><button className={floor===0?'active':''} onClick={()=>setFloor(0)}>Tất cả</button>{[1,2,3,4,5,6,7,8].map(f=><button key={f} className={floor===f?'active':''} onClick={()=>setFloor(f)}>T{f}</button>)}</div>
         <select value={status} onChange={e=>setStatus(e.target.value)}><option value="all">Tất cả trạng thái</option><option value="vacant">Phòng trống</option><option value="occupied">Đang thuê</option><option value="maintenance">Bảo trì</option></select>
       </div>
+
       <Building3D activeFloor={floor} statusFilter={status} selectedRoom={selected} onSelectRoom={selectRoom}/>
-      <div className="map-caption"><span className="eyebrow">SA BÀN 3D · LIVE PROTOTYPE</span><strong>{floor===0?'Toàn bộ tòa nhà':'Tầng '+floor}</strong></div>
-      <div className="legend">{Object.entries(STATUS).map(([k,v])=><button key={k} className={status===k?'active':''} onClick={()=>setStatus(status===k?'all':k)}><i style={{background:v.color}}/>{v.label}</button>)}</div>
-      <div className="view-help"><span>↻ Kéo để xoay</span><span>⌕ Cuộn để zoom</span></div>
+
+      <div className="legend premium-legend">{Object.entries(STATUS).map(([k,v])=><button key={k} className={status===k?'active':''} onClick={()=>setStatus(status===k?'all':k)}><i style={{background:v.color}}/>{v.label}</button>)}</div>
+      <div className="view-help"><span>Kéo để xoay</span><span>Cuộn để zoom</span></div>
     </main>
     <Inspector room={selected} onClose={()=>setSelected(null)}/>
   </div>
 }
 
-
 function AboutPage() {
   const faqs = [
     {
       q: 'Vì sao đề tài cần GIS 3D thay vì chỉ dùng bảng dữ liệu?',
-      a: 'Tài liệu của nhóm xác định vấn đề cốt lõi là khoảng cách giữa dữ liệu dạng số, văn bản và cấu trúc kiến trúc thực tế. Khi chỉ dùng danh sách hoặc bảng, ban quản lý phải tự đối chiếu mã phòng với vị trí thật và khó nắm nhanh trạng thái của toàn tòa nhà. Mô hình 3D được dùng như một phần trực tiếp của quá trình quản lý, không chỉ để minh họa.'
+      a: 'Vấn đề cốt lõi mà nhóm xác định là khoảng cách giữa dữ liệu dạng số, văn bản và cấu trúc kiến trúc thực tế của tòa nhà. Khi chỉ dùng bảng biểu, ban quản lý phải tự đối chiếu mã phòng với vị trí thật, khó nắm nhanh tình trạng của toàn bộ công trình và dễ rơi vào trạng thái “mù không gian” trong vận hành.'
     },
     {
-      q: 'Đề tài đang xây dựng chính xác cái gì?',
-      a: 'Một ứng dụng WebGIS 3D quản lý cho thuê căn hộ chung cư mini 8 tầng. Mỗi căn hộ được xem như một thực thể không gian độc lập và được liên kết với dữ liệu nghiệp vụ như trạng thái phòng, khách thuê, hợp đồng, điện nước, chi phí và bảo trì.'
+      q: 'Đề tài này thực chất đang xây dựng cái gì?',
+      a: 'Đây là ứng dụng WebGIS 3D quản lý cho thuê căn hộ chung cư mini 8 tầng. Mỗi căn hộ được xem như một thực thể không gian độc lập, đồng thời được liên kết với dữ liệu nghiệp vụ như trạng thái phòng, khách thuê, hợp đồng, điện nước, chi phí và bảo trì.'
+    },
+    {
+      q: 'Điểm nổi bật của đề tài nằm ở đâu?',
+      a: 'Điểm nổi bật không nằm ở CRUD dữ liệu đơn thuần, mà ở việc mô hình 3D trở thành một phần trực tiếp của quy trình quản lý. Người dùng có thể quan sát, truy vấn, lọc tầng, nhấp vào từng phòng và thao tác quản lý ngay trên đối tượng 3D.'
     },
     {
       q: 'Người dùng thao tác với căn hộ trên mô hình như thế nào?',
-      a: 'Người dùng có thể xoay, thu phóng, lọc hoặc bóc tách theo tầng và nhấp trực tiếp lên căn hộ. Theo thiết kế dữ liệu của nhóm, thao tác click trên bề mặt FACE được dùng để xác định khối BODY tương ứng, sau đó truy xuất dữ liệu căn hộ bằng mã định danh liên kết.'
-    },
-    {
-      q: 'Màu sắc trên mô hình thể hiện điều gì?',
-      a: 'Mô hình dùng bản đồ chuyên đề để thể hiện trạng thái vận hành: xanh cho phòng trống, đỏ cho phòng đang thuê và vàng cho phòng đang bảo trì. Khi dữ liệu nghiệp vụ thay đổi, trạng thái hiển thị của căn hộ cũng được cập nhật tương ứng.'
+      a: 'Người dùng có thể xoay, thu phóng, chọn tầng và nhấp trực tiếp lên căn hộ. Theo hướng dữ liệu mà nhóm xác định, thao tác nhấp trên bề mặt FACE được dùng để xác định khối BODY tương ứng, sau đó truy xuất dữ liệu căn hộ thông qua mã định danh liên kết.'
     },
     {
       q: 'Floor Slicing giải quyết vấn đề gì?',
-      a: 'Tài liệu nêu rằng môi trường 3D nhiều tầng có thể gây che khuất tầm nhìn. Vì vậy hệ thống cho phép ẩn hoặc làm trong suốt các tầng phía trên để quan sát rõ mặt bằng của tầng đang được chọn.'
+      a: 'Trong môi trường 3D nhiều tầng, các khối phía trên có thể che khuất tầm nhìn. Vì vậy hệ thống cung cấp chức năng bóc tách tầng, cho phép ẩn hoặc làm trong suốt các tầng phía trên để quan sát rõ mặt bằng tầng đang chọn.'
+    },
+    {
+      q: 'Màu sắc trên mô hình có ý nghĩa gì?',
+      a: 'Hệ thống dùng bản đồ chuyên đề để trực quan hóa trạng thái vận hành: xanh cho phòng trống, đỏ cho phòng đang thuê và vàng cho phòng đang bảo trì. Khi dữ liệu nghiệp vụ thay đổi, màu hiển thị của căn hộ cũng thay đổi tương ứng.'
     },
     {
       q: 'Ai là người sử dụng hệ thống?',
-      a: 'Các nhóm người dùng được xác định gồm Ban Quản Lý/chủ tòa nhà, Nhân Viên vận hành, Khách Tìm Thuê và Cư Dân. Mỗi nhóm có phạm vi thao tác khác nhau, trong đó Ban Quản Lý là nhóm có quyền quản trị rộng nhất.'
+      a: 'Các nhóm người dùng chính gồm Ban Quản Lý, Nhân Viên vận hành, Khách Tìm Thuê và Cư Dân. Trong đó Ban Quản Lý là nhóm có nhu cầu giám sát tổng thể và có quyền thao tác rộng nhất.'
     },
     {
       q: 'Vì sao nhóm chọn quy mô 8 tầng, khoảng 4–6 căn mỗi tầng?',
-      a: 'Đây là dữ liệu thử nghiệm trong phạm vi đồ án, đủ để thể hiện các đặc trưng GIS 3D như tổ chức đối tượng theo độ cao, truy vấn đối tượng không gian, bóc tách tầng và liên kết dữ liệu không gian với dữ liệu thuộc tính.'
+      a: 'Đây là quy mô thử nghiệm phù hợp cho phạm vi đồ án. Nó đủ để thể hiện các đặc trưng của GIS 3D như tổ chức đối tượng theo độ cao, truy vấn không gian, bóc tách tầng và liên kết dữ liệu hình học với dữ liệu thuộc tính.'
     },
     {
-      q: 'Đề tài có phải là mô hình BIM chi tiết không?',
-      a: 'Không. Phạm vi tài liệu nêu rõ mô hình 3D tập trung vào cấu trúc cần thiết để biểu diễn và tương tác với tầng, căn hộ; không hướng đến xây dựng mô hình BIM chi tiết.'
+      q: 'Đề tài có hướng tới mô hình BIM chi tiết không?',
+      a: 'Không. Phạm vi đồ án tập trung vào cấu trúc cần thiết để biểu diễn và tương tác với tầng, căn hộ và dữ liệu vận hành, chứ không hướng đến xây dựng mô hình BIM chi tiết.'
     },
     {
-      q: 'Những nội dung nào nằm ngoài phạm vi?',
-      a: 'Các nội dung chuyên sâu như quản lý thuế, kế toán doanh nghiệp, tích hợp ngân hàng, hệ thống phòng cháy chữa cháy và quản lý thiết bị kỹ thuật chi tiết được xác định là ngoài phạm vi đồ án.'
+      q: 'Những gì nằm ngoài phạm vi của đề tài?',
+      a: 'Các nội dung chuyên sâu như quản lý thuế, kế toán doanh nghiệp, tích hợp ngân hàng, phòng cháy chữa cháy hay quản lý thiết bị kỹ thuật chi tiết được xác định là nằm ngoài phạm vi đồ án.'
     }
   ]
 
-  return <div className="page-scroll about-page">
-    <section className="about-hero">
-      <span className="eyebrow">ĐỀ TÀI NHÓM 3 · WEBGIS 3D</span>
-      <h2>Từ dữ liệu rời rạc đến quản lý trực tiếp trên không gian 3D.</h2>
-      <p>Mục tiêu của đề tài là thu hẹp khoảng cách giữa thông tin quản lý và cấu trúc thực tế của tòa nhà, để người dùng có thể quan sát, truy vấn và cập nhật dữ liệu ngay trên mô hình căn hộ.</p>
+  return <div className="page-scroll about-page landing-about">
+    <section className="landing-hero">
+      <div className="hero-copy">
+        <span className="eyebrow">WEBGIS 3D · NHÓM 3 · CHUNG CƯ MINI 8 TẦNG</span>
+        <h2>Quản lý căn hộ<br/>không chỉ bằng dữ liệu,<br/><em>mà bằng chính không gian.</em></h2>
+        <p>Đề tài hướng đến việc biến mô hình 3D của tòa nhà thành một công cụ quản lý trực tiếp — nơi người dùng có thể quan sát, truy vấn và cập nhật thông tin ngay trên từng căn hộ, thay vì phải tự đối chiếu dữ liệu rời rạc trong bảng biểu.</p>
+
+        <div className="hero-meta">
+          <div><strong>8 tầng</strong><span>Một tòa chung cư mini thử nghiệm</span></div>
+          <div><strong>4–6 căn / tầng</strong><span>Đủ để thể hiện logic GIS 3D</span></div>
+          <div><strong>WebGIS</strong><span>Quản lý vận hành qua trình duyệt</span></div>
+        </div>
+      </div>
+
+      <div className="hero-note">
+        <div className="hero-note-card">
+          <span className="eyebrow">CORE IDEA</span>
+          <h3>Thu hẹp khoảng cách giữa dữ liệu quản lý và cấu trúc thực tế của công trình.</h3>
+          <p>Thay vì nhìn tòa nhà như một danh sách mã phòng, hệ thống nhìn mỗi căn hộ như một thực thể không gian có vị trí, trạng thái và dữ liệu nghiệp vụ đi kèm.</p>
+        </div>
+      </div>
     </section>
 
-    <section className="why-what-how">
-      <article className="concept-card">
-        <span className="concept-index">01</span>
-        <span className="eyebrow">WHY · VÌ SAO</span>
-        <h3>Giảm “mù không gian” trong vận hành</h3>
-        <p>Quản lý bằng bảng biểu khiến người dùng phải tự đối chiếu mã phòng với vị trí thực tế, khó nhìn nhanh tình trạng trống, đang thuê hay bảo trì và khó mô tả không gian cho khách tìm thuê.</p>
-      </article>
-      <article className="concept-card">
-        <span className="concept-index">02</span>
-        <span className="eyebrow">WHAT · LÀ GÌ</span>
-        <h3>Một hệ thống quản lý căn hộ gắn với mô hình 3D</h3>
-        <p>Mỗi căn hộ là một thực thể không gian độc lập, được liên kết với dữ liệu khách thuê, hợp đồng, giá thuê, điện nước, chi phí và trạng thái vận hành.</p>
-      </article>
-      <article className="concept-card">
-        <span className="concept-index">03</span>
-        <span className="eyebrow">HOW · LÀM NHƯ THẾ NÀO</span>
-        <h3>Liên kết BODY–FACE–NODE với dữ liệu nghiệp vụ</h3>
-        <p>Người dùng tương tác với mô hình bằng xoay, zoom, floor slicing và click-to-action. ID phòng/BODY là cầu nối giữa hình học 3D và dữ liệu nghiệp vụ phía sau.</p>
-      </article>
+    <section className="story-grid">
+      <article className="story-card"><span className="story-index">WHY</span><h3>Vì sao cần đề tài này?</h3><p>Quản lý bằng bảng dữ liệu khiến ban quản lý khó nhìn nhanh bức tranh tổng thể của công trình, khó theo dõi trạng thái từng phòng và thiếu công cụ trực quan khi làm việc với khách thuê tiềm năng.</p></article>
+      <article className="story-card"><span className="story-index">WHAT</span><h3>Đề tài giải quyết điều gì?</h3><p>Xây dựng một ứng dụng WebGIS 3D cho phép quản lý căn hộ, khách thuê, hợp đồng, điện nước và bảo trì, đồng thời gắn các thông tin đó vào mô hình không gian 3D của một tòa nhà 8 tầng.</p></article>
+      <article className="story-card"><span className="story-index">HOW</span><h3>Đề tài vận hành như thế nào?</h3><p>Mô hình 3D và dữ liệu nghiệp vụ được liên kết thông qua ID căn hộ/BODY. Người dùng có thể floor slicing, thematic mapping, click-to-action và xem dữ liệu chi tiết ngay trên các đối tượng 3D.</p></article>
     </section>
 
-    <section className="about-split">
-      <div className="panel about-scope">
+    <section className="logic-strip">
+      <div className="logic-item"><span className="eyebrow">INPUT</span><strong>Dữ liệu không gian + dữ liệu thuộc tính</strong><p>Mô hình 3D tòa nhà, tầng, căn hộ và dữ liệu khách thuê, hợp đồng, điện nước, bảo trì.</p></div>
+      <div className="logic-arrow">→</div>
+      <div className="logic-item"><span className="eyebrow">MECHANISM</span><strong>Liên kết hình học với nghiệp vụ</strong><p>Click vào phòng để truy xuất thông tin, cập nhật trạng thái và hỗ trợ quan sát trực tiếp trên mô hình.</p></div>
+      <div className="logic-arrow">→</div>
+      <div className="logic-item"><span className="eyebrow">OUTPUT</span><strong>Quản lý trực quan và chính xác hơn</strong><p>Hỗ trợ giám sát tình trạng lấp đầy, tìm phòng trống, theo dõi bảo trì và nắm bắt vận hành nhanh hơn.</p></div>
+    </section>
+
+    <section className="split-panels">
+      <div className="panel premium-panel">
         <span className="eyebrow">PHẠM VI THỬ NGHIỆM</span>
-        <h3>1 tòa nhà · 8 tầng · khoảng 4–6 căn/tầng</h3>
-        <p>Quy mô này được nhóm chọn để thể hiện tổ chức đối tượng theo độ cao, truy vấn không gian, bóc tách tầng và liên kết dữ liệu 3D với dữ liệu thuộc tính.</p>
-        <div className="scope-tags"><span>3D spatial data</span><span>Room status</span><span>Contracts</span><span>Utilities</span><span>Maintenance</span></div>
+        <h3>Một prototype đủ rõ để chứng minh giá trị của GIS 3D.</h3>
+        <p>Hệ thống được triển khai thử nghiệm trên một chung cư mini 8 tầng, mỗi tầng khoảng 4–6 căn hộ. Mô hình tập trung vào cấu trúc cần thiết để biểu diễn, tương tác và liên kết dữ liệu, không đi theo hướng BIM chi tiết.</p>
+        <div className="tag-cluster"><span>3D Spatial Data</span><span>Room Status</span><span>Tenants</span><span>Contracts</span><span>Utilities</span><span>Maintenance</span></div>
       </div>
-      <div className="panel tech-flow">
-        <span className="eyebrow">KIẾN TRÚC CÔNG NGHỆ ĐỀ XUẤT</span>
-        <div className="flow-row"><strong>React + Three.js</strong><span>Frontend & 3D interaction</span></div>
-        <i>↓</i>
-        <div className="flow-row"><strong>REST API + JSON</strong><span>Giao tiếp dữ liệu</span></div>
-        <i>↓</i>
-        <div className="flow-row"><strong>Node.js + Express.js</strong><span>Backend nghiệp vụ</span></div>
-        <i>↓</i>
-        <div className="flow-row"><strong>PostgreSQL + PostGIS</strong><span>Dữ liệu nghiệp vụ & không gian</span></div>
+
+      <div className="panel premium-panel">
+        <span className="eyebrow">CÔNG NGHỆ ĐỀ XUẤT</span>
+        <h3>Một stack gọn và rõ cho prototype WebGIS 3D.</h3>
+        <div className="stack-list">
+          <div className="stack-row"><strong>React + Three.js</strong><span>Giao diện, component và tương tác mô hình 3D</span></div>
+          <div className="stack-row"><strong>REST API + JSON</strong><span>Lớp giao tiếp giữa frontend và backend</span></div>
+          <div className="stack-row"><strong>Node.js + Express.js</strong><span>Xử lý nghiệp vụ và cung cấp dịch vụ dữ liệu</span></div>
+          <div className="stack-row"><strong>PostgreSQL + PostGIS</strong><span>Lưu trữ dữ liệu nghiệp vụ và dữ liệu không gian</span></div>
+        </div>
       </div>
     </section>
 
-    <section className="faq-section">
-      <div className="faq-title">
-        <span className="eyebrow">Q&A · CÂU HỎI THƯỜNG GẶP</span>
-        <h3>Hiểu nhanh logic của đề tài</h3>
-        <p>Các câu trả lời dưới đây được rút trực tiếp từ phạm vi, mục tiêu, use case và lựa chọn công nghệ của nhóm.</p>
-      </div>
-      <div className="faq-list">
-        {faqs.map((item,index)=><details key={item.q} className="faq-item" open={index===0}>
-          <summary><span>{String(index+1).padStart(2,'0')}</span><strong>{item.q}</strong><b>＋</b></summary>
-          <p>{item.a}</p>
-        </details>)}
+    <section className="faq-landing">
+      <div className="faq-landing-head"><span className="eyebrow">Q&A</span><h3>Những câu hỏi giúp nhìn ra logic của đề tài.</h3><p>Phần này giải thích nhanh giá trị, cơ chế và giới hạn của hệ thống dựa trên tài liệu nhóm.</p></div>
+      <div className="faq-list large-faq">
+        {faqs.map((item,index)=><details key={item.q} className="faq-item" open={index===0}><summary><span>{String(index+1).padStart(2,'0')}</span><strong>{item.q}</strong><b>＋</b></summary><p>{item.a}</p></details>)}
       </div>
     </section>
   </div>
